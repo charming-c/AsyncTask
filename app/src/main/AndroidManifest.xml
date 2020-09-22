@@ -16,6 +16,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:authorities="my.BookProvider"
+            android:name=".BookProvider"></provider>
     </application>
 
 </manifest>

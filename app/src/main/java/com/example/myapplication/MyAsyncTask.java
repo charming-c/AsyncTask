@@ -21,11 +21,11 @@ public abstract class MyAsyncTask<Params, Progress, Result> {
     private WorkerRunnable<Params, Result> mWorker;
 
     /*
-    *FutureTask在AsyncTask里充当了线程的角色，
-    *因此耗时的后台任务doInBackground应该在FutureTask中调用，
-    *同时我们还要提供线程池对象来执行FutureTask
-    * FutureTask既是Callable也是Future对象
-    */
+     *FutureTask在AsyncTask里充当了线程的角色，
+     *因此耗时的后台任务doInBackground应该在FutureTask中调用，
+     *同时我们还要提供线程池对象来执行FutureTask
+     * FutureTask既是C
+     */
     private static final Executor EXECUTOR = Executors.newCachedThreadPool();
     private FutureTask<Result> mFuture;
 
@@ -34,23 +34,19 @@ public abstract class MyAsyncTask<Params, Progress, Result> {
 
     /**
      * AsyncTask会在各Activity中实例化，
-     * 有可能在主线程或子线程中实例化，这么多的AsyncTask实例中，
+     * 有可能在主线程或子线程中实例化allable也是Future对象，这么多的AsyncTask实例中，
      * 我们只需要一个持有mainLooper的Handler的实例，
      * 因此它将是一个单例对象，单个进程内共享。
      */
     private static InternalHandler sHandler = new InternalHandler();
-
-    /**
-     * 是否取消
-     */
     private final AtomicBoolean mCancelled = new AtomicBoolean();
 
     /*
-    * 这是MyAsyncTask的一个构造器
-    * 会创建一个mworker储存所要执行的任务
-    * 任务在运行时就会调用doInBackground和postResult
-    * 在子线程拉取数据，再将结果返回给hander来更新UI
-    * */
+     * 这是MyAsyncTask的一个构造器
+     * 会创建一个mworker储存所要执行的任务
+     * 任务在运行时就会调用doInBackground和postResult
+     * 在子线程拉取数据，再将结果返回给hander来更新UI
+     * */
     public MyAsyncTask() {
 //        WorkerRunnable是已经实现Callable接口的声明请求任务时的参数的类
 //        作为每一个要执行的具体的任务或请求
@@ -77,6 +73,7 @@ public abstract class MyAsyncTask<Params, Progress, Result> {
         //执行FutureTask启动线程
         EXECUTOR.execute(mFuture);
     }
+
     //触发onProgressUpdate
     protected final void publishProgress(Progress progress) {
         if (!isCancelled()) {
@@ -84,7 +81,7 @@ public abstract class MyAsyncTask<Params, Progress, Result> {
             sHandler.obtainMessage(MESSAGE_POST_PROGRESS, taskResult).sendToTarget();
         }
     }
-    
+
     private Result postResult(Result result) {
         AsyncTaskResult<Result> taskResult = new AsyncTaskResult<>(this, result);
         Message message = sHandler.obtainMessage(MESSAGE_POST_RESULT, taskResult);
@@ -101,9 +98,10 @@ public abstract class MyAsyncTask<Params, Progress, Result> {
         mCancelled.set(true);
         return mFuture.cancel(mayInterruptIfRunning);
     }
+
     /*
-    * 终止线程或者线程结束将这两个方法包装
-    * */
+     * 终止线程或者线程结束将这两个方法包装
+     * */
     private void finish(Result result) {
         if (isCancelled()) {
             //调用模板方法5：终止线程执行
@@ -117,21 +115,27 @@ public abstract class MyAsyncTask<Params, Progress, Result> {
     /*
      *预执行，线程启动之前调用
      * */
-    public void onPreExecute(){}
+    public void onPreExecute() {
+    }
+
     /*
      *执行后台任务，在新开辟的线程中调用
      * 泛型参数由子类传递，写成抽象方法
      * */
     public abstract Result doInBackground(Params params);
+
     /*
      *执行进度反馈，应该在Handler中调用
      * */
-    public void onProgressUpdate(Progress progress) {}
+    public void onProgressUpdate(Progress progress) {
+    }
+
     /*
      *执行完毕，应该在Handler中调用
      */
     public void onPostExecute(Result result) {
     }
+
     /*
      * 终止线程执行，应该在Handler中调用
      */
@@ -148,8 +152,8 @@ public abstract class MyAsyncTask<Params, Progress, Result> {
 
     private static class InternalHandler extends Handler {
         /*
-        * 获得在创建hander时就获取mainLooper
-        * */
+         * 获得在创建hander时就获取mainLooper
+         * */
         public InternalHandler() {
             super(Looper.getMainLooper());
         }
